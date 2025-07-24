@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Your Assigned Complaints</h2>
+        <div>
+            {% if session.role == 'system_admin' and pending_admins_count > 0 %}
+                <a href="{{ url_for('admin_approvals') }}" class="btn btn-primary">
+                    Pending Approvals <span class="badge bg-danger">{{ pending_admins_count }}</span>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-body">
+        {% if session.role == 'system_admin' and pending_admins_count > 0 %}
+            <div class="alert alert-info">
+                <strong>Pending Admin Approvals:</strong>
+                There are {{ pending_admins_count }} admin requests waiting for approval.
+                <a href="{{ url_for('admin_approvals') }}">Review now</a>
+            </div>
+        {% endif %}
+        
+        <div class="mb-3">
+            <label for="statusFilter" class="form-label">Filter by Status:</label>
+            <select id="statusFilter" class="form-select" onchange="filterComplaints()">
+                <option value="all">All</option>
+                <option value="pending">Pending</option>
+                <option value="resolved">Resolved</option>
+                <option value="in_progress">In Progress</option>
+            </select>
+        </div>
+        
+        {% if complaints %}
+            <div class="table-responsive">
+                <table class="table" id="complaintsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Student</th>
+                            <th>Category</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for complaint in complaints %}
+                        <tr data-status="{{ complaint.status }}">
+                            <td>{{ complaint.id }}</td>
+                            <td>{{ complaint.student_name }}</td>
+                            <td>{{ complaint.category|title }}</td>
+                            <td>{{ complaint.created_at[:10] }}</td>
+                            <td>
+                                <span class="badge badge-{{ complaint.status }}">
+                                    {{ complaint.status|replace('_', ' ')|title }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('admin_view_complaint', complaint_id=complaint.id) }}" class="btn">View</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p>You don't have any assigned complaints.</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function filterComplaints() {
+        const filter = document.getElementById('statusFilter').value;
+        const rows = document.querySelectorAll('#complaintsTable tbody tr');
+        rows.forEach(row => {
+            const status = row.getAttribute('data-status');
+            if (filter === 'all' || status === filter) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}
