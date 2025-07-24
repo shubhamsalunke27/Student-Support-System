@@ -10,7 +10,7 @@
 <body>
     <header>
         <div class="container header-content">
-            <h1>Student Support System</h1>
+            <h1>Student Support System </h1>
             <nav>
                 {% if 'user_id' in session %}
                     <span><i class="fas fa-user"></i> {{ session.full_name }} ({{ session.role|title }})</span>
@@ -43,12 +43,6 @@
 
         {% block content %}{% endblock %}
     </main>
-
-    <!-- <footer>
-        <div class="container">
-            <p>&copy; {{ now.year }} Student Complaint System. All rights reserved.</p>
-        </div>
-    </footer> -->
 
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
