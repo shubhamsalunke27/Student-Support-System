@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block title %}System Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    {% if pending_admins_count > 0 %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2 class="card-title">Pending Admin Approvals</h2>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <strong>Pending Admin Requests:</strong>
+                There are {{ pending_admins_count }} admin requests waiting for approval.
+                <a href="{{ url_for('admin_approvals') }}" class="btn btn-primary">Review Requests</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2 class="card-title">System Overview</h2>
+        </div>
+        <div class="card-body">
+            <div class="d-flex justify-content-between flex-wrap">
+                <div class="stat-card">
+                    <h3>Total Complaints</h3>
+                    <p class="stat-number">{{ stats.total }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending</h3>
+                    <p class="stat-number">{{ stats.pending }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>In Progress</h3>
+                    <p class="stat-number">{{ stats.in_progress }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Resolved</h3>
+                    <p class="stat-number">{{ stats.resolved }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Escalated</h3>
+                    <p class="stat-number">{{ stats.escalated }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="card-title">Complaints by Category</h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for category in categories %}
+                                <tr>
+                                    <td>{{ category.category }}</td>
+                                    <td>{{ category.count }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="card-title">Admin Performance</h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Admin</th>
+                                    <th>Position</th>
+                                    <th>Total</th>
+                                    <th>Resolved</th>
+                                    <th>Avg. Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for admin in admin_performance %}
+                                <tr>
+                                    <td>{{ admin.full_name }}</td>
+                                    <td>{{ admin.admin_position }}</td>
+                                    <td>{{ admin.total_complaints }}</td>
+                                    <td>{{ admin.resolved_complaints }}</td>
+                                    <td>
+                                        {% if admin.avg_resolution_time is not none %}
+                                            {{ "%.1f"|format(admin.avg_resolution_time) }} days
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Recent Complaints</h2>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Student</th>
+                            <th>Admin</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for complaint in complaints %}
+                        <tr>
+                            <td>{{ complaint.id }}</td>
+                            <td>{{ complaint.student_name }}</td>
+                            <td>{{ complaint.admin_name or 'Unassigned' }}</td>
+                            <td>{{ complaint.category }}</td>
+                            <td>
+                                <span class="badge badge-{{ complaint.status }}">
+                                    {{ complaint.status.replace('_', ' ').title() }}
+                                </span>
+                            </td>
+                            <td>{{ complaint.created_at if complaint.created_at else 'N/A' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.stat-card {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+    flex: 1;
+    min-width: 200px;
+    margin-right: 1rem;
+}
+
+.stat-card:last-child {
+    margin-right: 0;
+}
+
+.stat-card h3 {
+    font-size: 1rem;
+    color: var(--text-light);
+    margin-bottom: 0.5rem;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.badge-pending {
+    background-color: var(--warning-color);
+    color: white;
+}
+
+.badge-in_progress {
+    background-color: var(--info-color);
+    color: white;
+}
+
+.badge-resolved {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.badge-escalated {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .stat-card {
+        min-width: 100%;
+        margin-right: 0;
+    }
+}
+</style>
+{% endblock %} 
