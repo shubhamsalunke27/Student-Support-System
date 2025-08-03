@@ -1,3 +1,4 @@
+
 /* Global Styles */
 :root {
     --primary-color: #4a90e2;
@@ -713,4 +714,5 @@ footer {
     .detail-row strong {
         min-width: 120px;
     }
+
 }
