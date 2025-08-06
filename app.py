@@ -18,6 +18,7 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 app = Flask(__name__)
 app.secret_key = os.urandom(24)  # Secure random key
 
+
 # File upload configuration
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -1222,4 +1223,5 @@ if __name__ == '__main__':
         init_db()
         
     # Run the app with SocketIO
+
     socketio.run(app, debug=True)
